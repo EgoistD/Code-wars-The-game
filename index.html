@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>👾 Alien Codebreaker</title>
+  <!-- Link to external stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>👾 Alien Codebreaker</h1>
+  <p>Crack the alien’s secret 4‑digit code! Each guess reveals clues.</p>
+
+  <input type="text" id="guessInput" maxlength="4" placeholder="Enter 4 digits">
+  <button onclick="checkGuess()">Submit Guess</button>
+  <button id="hintBtn" onclick="giveHint()">Get Hint</button>
+  <button id="surrenderBtn" onclick="surrender()">Surrender</button>
+  <button id="playAgain" style="display:none;" onclick="restartGame()">Play Again</button>
+
+  <div id="message"></div>
+  <div id="history"></div>
+
+  <script>
+    let secretCode;
+    let attempts;
+    let hintsUsed;
+
+    function generateCode() {    
+      let code = "";
+      for (let i = 0; i < 4; i++) {
+        code += Math.floor(Math.random() * 10);
+      }
+      return code;
+    }
+
+    function startGame() {
+      secretCode = generateCode();
+      attempts = 0;
+      hintsUsed = 0;
+      document.getElementById("message").textContent = "";
+      document.getElementById("history").innerHTML = "";
+      document.getElementById("guessInput").value = "";
+      document.getElementById("playAgain").style.display = "none";
+      console.log("Secret Code (for testing): " + secretCode);
+    }
+
+    function checkGuess() {
+      const guess = document.getElementById("guessInput").value;
+      const message = document.getElementById("message");
+
+      if (guess.length !== 4 || isNaN(guess)) {
+        message.textContent = "⚠️ Enter exactly 4 digits!";
+        return;
+      }
+
+      attempts++;
+      let correctDigits = 0;
+      let correctPositions = 0;
+
+      for (let i = 0; i < 4; i++) {
+        if (secretCode.includes(guess[i])) {
+          correctDigits++;
+        }
+        if (secretCode[i] === guess[i]) {
+          correctPositions++;
+        }
+      }
+
+      if (guess === secretCode) {
+        message.textContent = `🎉 You cracked the alien code in ${attempts} attempts!`;
+        document.getElementById("playAgain").style.display = "inline-block";
+      } else {
+        message.textContent = `Digits correct: ${correctDigits}, In right place: ${correctPositions}`;
+        const history = document.getElementById("history");
+        history.innerHTML += `<p>Guess ${attempts}: ${guess} → ${correctDigits} correct, ${correctPositions} in place</p>`;
+      }
+    }
+
+    function giveHint() {
+      const message = document.getElementById("message");
+      if (hintsUsed >= 2) {
+        message.textContent = "🛑 No more hints available!";
+        return;
+      }
+      hintsUsed++;
+      const randomIndex = Math.floor(Math.random() * 4);
+      const hintDigit = secretCode[randomIndex];
+      message.textContent = `💡 Hint: The digit at position ${randomIndex + 1} is ${hintDigit}. (Hint ${hintsUsed}/2)`;
+    }
+
+    function surrender() {
+      const message = document.getElementById("message");
+      message.textContent = `😔 You surrendered. The alien code was ${secretCode}.`;
+      document.getElementById("playAgain").style.display = "inline-block";
+    }
+
+    function restartGame() {
+      startGame();
+    }
+
+    window.onload = startGame;
+  </script>
+</body>
+</html>
